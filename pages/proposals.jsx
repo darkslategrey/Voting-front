@@ -96,7 +96,7 @@ const Proposals = () => {
         const contract = new ethers.Contract(
           contractAddress,
           Contract.abi,
-          provider
+          signer
         );
         const list = await contract.getProposals();
         console.log({ list });
