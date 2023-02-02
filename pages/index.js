@@ -171,6 +171,7 @@ export default function Home() {
   };
 
   useEffect(() => {
+    console.log({ signer });
     const currentState = async () => {
       try {
         const contract = new ethers.Contract(

@@ -7,14 +7,13 @@ import {
   Spinner,
   Input,
 } from "@chakra-ui/react";
-import { useAccount, useProvider, useSigner } from "wagmi";
+import { useAccount, useSigner } from "wagmi";
 import { ethers } from "ethers";
 import Contract from "../contracts/Voting.json";
 
 const AddVoter = () => {
   const [voter, setVoter] = useState("");
   const { data: signer } = useSigner();
-  const provider = useProvider();
   const toast = useToast();
   const [loading, setLoading] = useState(false);
   const contractAddress = process.env.NEXT_PUBLIC_SCADDRESS;
@@ -52,6 +51,7 @@ const AddVoter = () => {
   };
 
   useEffect(() => {
+    console.log({ signer });
     setVoter("");
   }, []);
   return (
