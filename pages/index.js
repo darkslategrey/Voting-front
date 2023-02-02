@@ -4,6 +4,7 @@ import {
   Flex,
   Text,
   FormControl,
+  Spinner,
   FormLabel,
   Switch,
   Textarea,
@@ -31,6 +32,7 @@ export default function Home() {
   const { data: signer } = useSigner();
   const [switches, setSwitches] = useState({});
   const [winner, setWinner] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const contractAddress = process.env.NEXT_PUBLIC_SCADDRESS;
 
@@ -39,6 +41,7 @@ export default function Home() {
 
   const handleVotingSession = async (checked) => {
     try {
+      setLoading(true);
       const contract = new ethers.Contract(
         contractAddress,
         Contract.abi,
@@ -54,6 +57,7 @@ export default function Home() {
         message = "Ending voting session";
       }
       await transaction.wait();
+      setLoading(false);
       toast({
         title: "Congratulations!",
         description: message,
@@ -62,6 +66,7 @@ export default function Home() {
         isClosable: true,
       });
     } catch (error) {
+      setLoading(false);
       console.log({ error });
       toast({
         title: "Error",
@@ -82,6 +87,7 @@ export default function Home() {
       );
       let transaction;
       let message;
+      setLoading(true);
       if (checked) {
         transaction = await contract.startProposalsRegistering();
         message = "Starting proposals registering";
@@ -90,6 +96,7 @@ export default function Home() {
         message = "Ending proposals registering";
       }
       await transaction.wait();
+      setLoading(false);
       toast({
         title: "Congratulations!",
         description: message,
@@ -98,6 +105,7 @@ export default function Home() {
         isClosable: true,
       });
     } catch (error) {
+      setLoading(false);
       console.log({ error });
       toast({
         title: "Error",
@@ -111,6 +119,7 @@ export default function Home() {
 
   const handleShowWinner = async () => {
     try {
+      setLoading(true);
       const contract = new ethers.Contract(
         contractAddress,
         Contract.abi,
@@ -121,9 +130,11 @@ export default function Home() {
         winningProposalID.toString()
       );
       proposal = proposal[0];
+      setLoading(false);
       console.log("winningproposalID", winningProposalID.toString(), proposal);
       setWinner(winningProposalID.toString() + " " + proposal);
     } catch (error) {
+      setLoading(false);
       console.log({ error });
       toast({
         title: "Error",
@@ -134,7 +145,9 @@ export default function Home() {
       });
     }
   };
+
   const handleCount = async () => {
+    setLoading(true);
     try {
       const contract = new ethers.Contract(
         contractAddress,
@@ -143,7 +156,9 @@ export default function Home() {
       );
       let transaction = await contract.tallyVotes();
       transaction.wait(2);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.log({ error });
       toast({
         title: "Error",
@@ -182,11 +197,12 @@ export default function Home() {
       }
     };
 
-    currentState();
+    if (isConnected) currentState();
   }, []);
 
   return (
     <>
+      {loading && <Spinner />}
       <Flex
         width="100%"
         direction={["column", "column", "row", "row"]}

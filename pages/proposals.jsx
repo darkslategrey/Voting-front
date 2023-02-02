@@ -6,6 +6,7 @@ import {
   Box,
   FormControl,
   FormLabel,
+  Spinner,
   OrderedList,
   ListItem,
   Input,
@@ -18,6 +19,7 @@ import { ethers } from "ethers";
 const Proposals = () => {
   const [proposals, setProposals] = useState([]);
   const [proposal, setProposal] = useState();
+  const [loading, setLoading] = useState(false);
   const { data: signer } = useSigner();
   const provider = useProvider();
   const contractAddress = process.env.NEXT_PUBLIC_SCADDRESS;
@@ -26,6 +28,7 @@ const Proposals = () => {
   const handleVote = async (idx) => {
     console.log({ idx });
     try {
+      setLoading(true);
       const contract = new ethers.Contract(
         contractAddress,
         Contract.abi,
@@ -34,6 +37,7 @@ const Proposals = () => {
       let transaction = await contract.setVote(idx);
       transaction.wait();
 
+      setLoading(false);
       toast({
         title: "Congratulations!",
         description: "You voted",
@@ -42,6 +46,7 @@ const Proposals = () => {
         isClosable: true,
       });
     } catch (error) {
+      setLoading(false);
       toast({
         title: "Error",
         description: error.reason,
@@ -54,6 +59,7 @@ const Proposals = () => {
   const addProposal = async () => {
     if (proposal.length === 0) return;
     try {
+      setLoading(true);
       const contract = new ethers.Contract(
         contractAddress,
         Contract.abi,
@@ -64,6 +70,7 @@ const Proposals = () => {
       console.log({ proposal });
       setProposals((older) => [...older, new Array(proposal)]);
 
+      setLoading(false);
       toast({
         title: "Congratulations!",
         description: "Proposal added",
@@ -72,6 +79,7 @@ const Proposals = () => {
         isClosable: true,
       });
     } catch (error) {
+      setLoading(false);
       toast({
         title: "Error",
         description: error.reason,
@@ -109,6 +117,7 @@ const Proposals = () => {
 
   return (
     <Box>
+      {loading && <Spinner />}
       <OrderedList>
         {proposals.map((e, key) => {
           return (

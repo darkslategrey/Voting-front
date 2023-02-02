@@ -4,6 +4,7 @@ import {
   FormControl,
   FormLabel,
   Button,
+  Spinner,
   Input,
 } from "@chakra-ui/react";
 import { useAccount, useProvider, useSigner } from "wagmi";
@@ -15,10 +16,12 @@ const AddVoter = () => {
   const { data: signer } = useSigner();
   const provider = useProvider();
   const toast = useToast();
+  const [loading, setLoading] = useState(false);
   const contractAddress = process.env.NEXT_PUBLIC_SCADDRESS;
 
   const addVoter = async () => {
     try {
+      setLoading(true);
       const contract = new ethers.Contract(
         contractAddress,
         Contract.abi,
@@ -27,6 +30,7 @@ const AddVoter = () => {
       let transaction = await contract.addVoter(voter);
       await transaction.wait();
       setVoter("");
+      setLoading(false);
       toast({
         title: "Congratulations!",
         description: "You have added a voter",
@@ -35,6 +39,7 @@ const AddVoter = () => {
         isClosable: true,
       });
     } catch (error) {
+      setLoading(false);
       console.log({ error });
       toast({
         title: "Error",
@@ -51,6 +56,7 @@ const AddVoter = () => {
   }, []);
   return (
     <FormControl>
+      {loading && <Spinner />}
       <FormLabel>Voter address</FormLabel>
       <Input
         value={voter}
