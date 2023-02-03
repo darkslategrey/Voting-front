@@ -12,7 +12,7 @@ import {
   Input,
   Button,
 } from "@chakra-ui/react";
-import { useAccount, useSigner } from "wagmi";
+import { useAccount, useProvider, useSigner } from "wagmi";
 import Contract from "../contracts/Voting.json";
 import { ethers } from "ethers";
 
@@ -21,6 +21,7 @@ const Proposals = () => {
   const [proposal, setProposal] = useState();
   const [loading, setLoading] = useState(false);
   const { data: signer } = useSigner();
+  const provider = useProvider();
   const contractAddress = process.env.NEXT_PUBLIC_SCADDRESS;
   const toast = useToast();
 
@@ -95,13 +96,14 @@ const Proposals = () => {
         const contract = new ethers.Contract(
           contractAddress,
           Contract.abi,
-          signer
+          provider
         );
         console.log({ signer });
         const list = await contract.getProposals();
         console.log({ list });
         setProposals(list);
       } catch (error) {
+        console.log({ error });
         toast({
           title: "Error",
           description: error.reason,
